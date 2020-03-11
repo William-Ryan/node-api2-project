@@ -55,7 +55,7 @@ router.post("/:id/comments", (req, res) => {
           });
         });
     }
-  });
+});
 
 router.get('/', (req, res) => {
     Posts.find()
@@ -88,7 +88,7 @@ router.get("/:id", (req, res) => {
           message: "The post information could not be retrieved."
         });
       });
-  });
+});
 
 router.get("/:id/comments", (req, res) => {
     const postId = req.params.id;
@@ -108,9 +108,9 @@ router.get("/:id/comments", (req, res) => {
           .status(500)
           .json({ error: "The comments information could not be retrieved." });
       });
-  });
+});
 
-  router.delete("/:id", (request, response) => {
+router.delete("/:id", (request, response) => {
     const { id } = request.params;
     Posts.remove(id)
       .then(post => {
@@ -128,6 +128,33 @@ router.get("/:id/comments", (req, res) => {
           .status(500)
           .json({ errorMessage: "The post could not be removed" });
       });
-  });
+});
+
+router.put("/:id", (request, response) => {
+    const { id } = request.params;
+    const updates = request.body;
+    Posts.update(id, updates)
+      .then(post => {
+        if (!post) {
+          response
+            .status(404)
+            .json({ message: "The post with the specified ID does not exist." });
+        } else if (!updates.title || !updates.contents) {
+          response.status(400).json({
+            errorMessage: "Please provide title and contents for the post."
+          });
+        } else {
+          response.status(200).json(post);
+        }
+      })
+      .catch(error => {
+        console.log("Error: ", error);
+        response
+          .status(500)
+          .json({ error: "The post information could not be modified." });
+      });
+});
+
+  
 
 module.exports = router
