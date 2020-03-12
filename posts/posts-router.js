@@ -38,8 +38,7 @@ router.post("/:id/comments", (req, res) => {
           message: "The post with the specified ID does not exist." 
         });
     } else if (!req.body.text) {
-      res
-        .status(400)
+      res.status(400)
         .json({
             errorMessage: "Please provide text for the comment." 
         });
@@ -60,10 +59,10 @@ router.post("/:id/comments", (req, res) => {
 router.get('/', (req, res) => {
     Posts.find()
     .then(posts => {
-        res.status(200).json(posts)
+        res.status(200).json({forum: process.env.FORUM, posts})
     })
     .catch(err => {
-        console.error("Error getting postst from DB...", err);
+        console.error("Error getting posts from DB...", err);
         res.status(500).json({
             error: "The posts information could not be retrieved."
         })
@@ -106,52 +105,58 @@ router.get("/:id/comments", (req, res) => {
         console.log("Error: ", error);
         res
           .status(500)
-          .json({ error: "The comments information could not be retrieved." });
+          .json({ 
+              error: "The comments information could not be retrieved." 
+            });
       });
 });
 
-router.delete("/:id", (request, response) => {
-    const { id } = request.params;
+router.delete("/:id", (req, res) => {
+    const { id } = req.params;
     Posts.remove(id)
       .then(post => {
         if (!post) {
-          response.status(404).json({
+          res.status(404).json({
             message: "The post with the specified ID does not exist."
           });
         } else {
-          response.status(200).json(post);
+          res.status(200).json(post);
         }
       })
       .catch(error => {
         console.log("Error: ", error);
-        response
+        res
           .status(500)
-          .json({ errorMessage: "The post could not be removed" });
+          .json({ 
+              errorMessage: "The post could not be removed" 
+            });
       });
 });
 
-router.put("/:id", (request, response) => {
-    const { id } = request.params;
-    const updates = request.body;
+router.put("/:id", (req, res) => {
+    const { id } = req.params;
+    const updates = req.body;
     Posts.update(id, updates)
       .then(post => {
         if (!post) {
-          response
+          res
             .status(404)
             .json({ message: "The post with the specified ID does not exist." });
         } else if (!updates.title || !updates.contents) {
-          response.status(400).json({
+          res.status(400).json({
             errorMessage: "Please provide title and contents for the post."
           });
         } else {
-          response.status(200).json(post);
+          res.status(200).json(post);
         }
       })
       .catch(error => {
         console.log("Error: ", error);
-        response
+        res
           .status(500)
-          .json({ error: "The post information could not be modified." });
+          .json({ 
+              error: "The post information could not be modified." 
+            });
       });
 });
 
